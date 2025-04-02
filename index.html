@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Chango&family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>Game Finder</title>
+    <style>
+        body {
+              font-family: "Bebas Neue", sans-serif;
+              font-weight: 400;
+              font-style: normal;
+            margin: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            background-image: url("https://i.pinimg.com/originals/34/1e/80/341e800b1f29d3e34ea2eba5a6af205c.gif");
+            padding: 15px;
+            color: white;
+        }
+
+        .header img {
+            height: 50px;
+            width: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            max-width: 800px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 10px;
+        }
+
+        .game-card {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .game-card:hover {
+            transform: scale(1.05);
+        }
+
+        .game-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            transition: transform 0.2s;
+        }
+
+        .game-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .game-card h3 {
+            margin: 10px 0 0;
+        }
+
+        .game-card a {
+            text-decoration: none;
+            color: black;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <img src="https://i.imgur.com/ogu8erF.png" alt="UPHSD - Computer Club">
+        <h1>UPHSD - Computer Club</h1>
+    </div>
+
+<h1>Pick A Game!</h1>
+    <div class="game-container">
+        <div class="game-card">
+            <a href="https://example.com/game1">
+                <img src="game1.jpg" alt="Game 1">
+                <h3>Game 1</h3>
+            </a>
+        </div>
+        <div class="game-card">
+            <a href="https://example.com/game2">
+                <img src="game2.jpg" alt="Game 2">
+                <h3>Game 2</h3>
+            </a>
+        </div>
+        <div class="game-card">
+            <a href="https://example.com/game3">
+                <img src="game3.jpg" alt="Game 3">
+                <h3>Game 3</h3>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
