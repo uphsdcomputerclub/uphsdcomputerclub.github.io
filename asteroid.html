@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spaceship Shooting Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+            background: black;
+            margin: 0 auto;
+        }
+        .score, .timer, .highscore {
+            position: absolute;
+            top: 10px;
+            font-size: 24px;
+            color: white;
+        }
+        .score {
+            left: 20px;
+        }
+        .timer {
+            right: 20px;
+        }
+        .highscore {
+            top: 50px;
+            left: 20px;
+            font-size: 24px;
+            color: yellow;
+        }
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: white;
+            display: none;
+        }
+        .restart-btn {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            padding: 10px 20px;
+            background-color: green;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
+        .restart-btn:hover {
+            background-color: darkgreen;
+        }
+        .game-title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-title" id="gameTitle">Spaceship Shooting Game</div>
+    <div class="score" id="score">Score: 0</div>
+    <div class="timer" id="timer">Time Left: 60</div>
+    <div class="highscore" id="highscore">Highscore: 0</div>
+    <div class="game-over" id="gameOverText">Game Over!</div>
+    <button class="restart-btn" id="restartButton" onclick="startGame()">Restart Game</button>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let spaceship = { x: canvas.width / 2 - 25, y: canvas.height - 50, width: 50, height: 50, dx: 0, speed: 8 };
+        let bullets = [];
+        let asteroids = [];
+        let score = 0;
+        let highscore = localStorage.getItem('highscore') || 0;
+        let gameOver = false;
+        let timeLeft = 60;
+        let timerInterval;
+
+        // Display the highscore
+        document.getElementById('highscore').textContent = 'Highscore: ' + highscore;
+
+        // Listen for key events to move spaceship and shoot bullets
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                spaceship.dx = -spaceship.speed;
+            } else if (e.key === 'ArrowRight') {
+                spaceship.dx = spaceship.speed;
+            } else if (e.key === ' ') {
+                shootBullet();
+            }
+        });
+
+        window.addEventListener('keyup', () => {
+            spaceship.dx = 0;
+        });
+
+        // Function to shoot a bullet
+        function shootBullet() {
+            if (gameOver) return; // Don't allow shooting if game is over
+            const bullet = { x: spaceship.x + spaceship.width / 2 - 5, y: spaceship.y, width: 10, height: 20, dy: -5 };
+            bullets.push(bullet);
+        }
+
+        // Function to create and move asteroids
+        function createAsteroid() {
+            const asteroid = {
+                x: Math.random() * canvas.width,
+                y: -50,
+                radius: 30 + Math.random() * 20,
+                dy: 3 + Math.random() * 2
+            };
+            asteroids.push(asteroid);
+        }
+
+        // Function to update the spaceship's position
+        function updateSpaceship() {
+            spaceship.x += spaceship.dx;
+            if (spaceship.x < 0) spaceship.x = 0;
+            if (spaceship.x + spaceship.width > canvas.width) spaceship.x = canvas.width - spaceship.width;
+        }
+
+        // Function to update bullets' positions
+        function updateBullets() {
+            bullets.forEach((bullet, index) => {
+                bullet.y += bullet.dy;
+                if (bullet.y < 0) {
+                    bullets.splice(index, 1);
+                }
+            });
+        }
+
+        // Function to update asteroids' positions and check for collisions
+        function updateAsteroids() {
+            asteroids.forEach((asteroid, index) => {
+                asteroid.y += asteroid.dy;
+                if (asteroid.y > canvas.height) {
+                    asteroids.splice(index, 1);
+                }
+
+                // Check for collision with bullets
+                bullets.forEach((bullet, bulletIndex) => {
+                    const dist = Math.sqrt((bullet.x - asteroid.x) ** 2 + (bullet.y - asteroid.y) ** 2);
+                    if (dist < asteroid.radius + bullet.height / 2) {
+                        asteroids.splice(index, 1);
+                        bullets.splice(bulletIndex, 1);
+                        score += 10;
+                        document.getElementById('score').textContent = 'Score: ' + score;
+                    }
+                });
+
+                // Check for collision with spaceship
+                const distToSpaceship = Math.sqrt((spaceship.x + spaceship.width / 2 - asteroid.x) ** 2 + (spaceship.y + spaceship.height / 2 - asteroid.y) ** 2);
+                if (distToSpaceship < asteroid.radius + spaceship.width / 2) {
+                    gameOver = true;
+                    document.getElementById("gameOverText").style.display = 'block';
+                    document.getElementById("restartButton").style.display = 'block';
+                    document.getElementById("gameTitle").style.display = 'none'; // Hide the title when game over
+                    clearInterval(timerInterval); // Stop the timer when game ends
+                    checkHighscore();
+                }
+            });
+        }
+
+        // Check if the score is a new highscore
+        function checkHighscore() {
+            if (score > highscore) {
+                highscore = score;
+                localStorage.setItem('highscore', highscore);
+                document.getElementById('highscore').textContent = 'Highscore: ' + highscore;
+            }
+        }
+
+        // Draw the spaceship as a triangle
+        function drawSpaceship() {
+            ctx.fillStyle = 'blue';
+            ctx.beginPath();
+            ctx.moveTo(spaceship.x + spaceship.width / 2, spaceship.y); // Top point of the triangle
+            ctx.lineTo(spaceship.x, spaceship.y + spaceship.height); // Bottom left point
+            ctx.lineTo(spaceship.x + spaceship.width, spaceship.y + spaceship.height); // Bottom right point
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Draw the bullets
+        function drawBullets() {
+            ctx.fillStyle = 'yellow';
+            bullets.forEach(bullet => {
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+            });
+        }
+
+        // Draw the asteroids
+        function drawAsteroids() {
+            ctx.fillStyle = 'gray';
+            asteroids.forEach(asteroid => {
+                ctx.beginPath();
+                ctx.arc(asteroid.x, asteroid.y, asteroid.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.closePath();
+            });
+        }
+
+        // Update the timer
+        function updateTimer() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                document.getElementById('timer').textContent = 'Time Left: ' + timeLeft;
+            } else {
+                gameOver = true;
+                document.getElementById("gameOverText").style.display = 'block';
+                document.getElementById("restartButton").style.display = 'block';
+                document.getElementById("gameTitle").style.display = 'none'; // Hide the title when game over
+                clearInterval(timerInterval); // Stop the timer when game ends
+                checkHighscore();
+            }
+        }
+
+        // Game loop function
+        function gameLoop() {
+            if (gameOver) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            updateSpaceship();
+            updateBullets();
+            updateAsteroids();
+
+            drawSpaceship();
+            drawBullets();
+            drawAsteroids();
+
+            if (Math.random() < 0.02) createAsteroid(); // Create asteroids at random intervals
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start the game
+        function startGame() {
+            gameOver = false;
+            score = 0;
+            timeLeft = 60;
+            asteroids = [];
+            bullets = [];
+            document.getElementById("gameOverText").style.display = 'none';
+            document.getElementById("restartButton").style.display = 'none';
+            document.getElementById("gameTitle").style.display = 'block'; // Show the title when game starts
+            document.getElementById('score').textContent = 'Score: ' + score;
+            document.getElementById('timer').textContent = 'Time Left: ' + timeLeft;
+
+            timerInterval = setInterval(updateTimer, 1000); // Update timer every second
+            gameLoop(); // Start the game loop
+        }
+
+        // Start the game automatically on load
+        startGame();
+    </script>
+
+</body>
+</html>

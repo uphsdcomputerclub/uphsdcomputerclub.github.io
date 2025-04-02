@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock, Paper, Scissors Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        .game-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            margin-top: 30px;
+        }
+        .choices {
+            margin-top: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 16px;
+            margin: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            font-size: 18px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
+        }
+        .win {
+            color: green;
+        }
+        .draw {
+            color: yellow;
+        }
+        .lose {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Rock, Paper, Scissors Game</h1>
+
+    <div class="game-container">
+        <p>Choose your move:</p>
+        
+        <div class="choices">
+            <button onclick="playGame('rock')">Rock</button>
+            <button onclick="playGame('paper')">Paper</button>
+            <button onclick="playGame('scissors')">Scissors</button>
+        </div>
+
+        <p class="message hidden" id="message"></p>
+        <p class="message hidden" id="resultMessage"></p>
+    </div>
+
+    <script>
+        function playGame(playerChoice) {
+            const choices = ['rock', 'paper', 'scissors'];
+            const computerChoice = choices[Math.floor(Math.random() * 3)];
+            const message = document.getElementById("message");
+            const resultMessage = document.getElementById("resultMessage");
+
+            let result = "";
+            let resultClass = "";
+
+            // Reset previous result message class to avoid unwanted styling carryover
+            resultMessage.classList.remove("win", "draw", "lose");
+
+            if (playerChoice === computerChoice) {
+                result = "It's a draw!";
+                resultClass = "draw";
+            } else if (
+                (playerChoice === 'rock' && computerChoice === 'scissors') ||
+                (playerChoice === 'paper' && computerChoice === 'rock') ||
+                (playerChoice === 'scissors' && computerChoice === 'paper')
+            ) {
+                result = "You win!";
+                resultClass = "win";
+            } else {
+                result = "You lose!";
+                resultClass = "lose";
+            }
+
+            message.textContent = `You chose ${playerChoice}. The computer chose ${computerChoice}.`;
+            resultMessage.textContent = result;
+
+            message.classList.remove("hidden");
+            resultMessage.classList.remove("hidden");
+            resultMessage.classList.add(resultClass);
+        }
+    </script>
+
+</body>
+</html>
